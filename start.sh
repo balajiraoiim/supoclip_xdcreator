@@ -39,12 +39,12 @@ fi
 
 echo "Installing backend dependencies..."
 
-pip install --upgrade pip
-pip install -r backend/requirements.txt
+python -m pip install --upgrade pip
+python -m pip install -r backend/requirements.txt
 
 echo "Starting SupoClip server..."
 
 PORT=${PORT:-8080}
 
 cd backend
-uvicorn main:app --host 0.0.0.0 --port $PORT
+python -m uvicorn main:app --host 0.0.0.0 --port $PORT
