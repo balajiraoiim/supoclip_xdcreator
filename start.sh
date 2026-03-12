@@ -37,15 +37,14 @@ if [ -z "$OPENAI_API_KEY" ] && [ -z "$GOOGLE_API_KEY" ] && [ -z "$ANTHROPIC_API_
   fi
 fi
 
-echo -e "${GREEN}Starting SupoClip server...${NC}"
-echo ""
+echo "Installing backend dependencies..."
 
-# Use Railway's provided port or fallback to 8080
+pip install --upgrade pip
+pip install -r backend/requirements.txt
+
+echo "Starting SupoClip server..."
+
 PORT=${PORT:-8080}
 
-# Start backend
-# Change "main:app" if your FastAPI/ASGI entrypoint is different
+cd backend
 uvicorn main:app --host 0.0.0.0 --port $PORT
-
-echo ""
-echo "============================================"
