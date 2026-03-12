@@ -17,18 +17,8 @@ echo "============================================"
 echo ""
 
 # Check if .env file exists
-if [ ! -f .env ]; then
-    echo -e "${RED}Error: .env file not found!${NC}"
-    echo ""
-    echo "Please create a .env file with your API keys:"
-    echo "  1. Copy the template: cp .env.example .env"
-    echo "  2. Or use the provided .env file"
-    echo "  3. Edit .env and add your API keys:"
-    echo "     - ASSEMBLY_AI_API_KEY (required)"
-    echo "     - OPENAI_API_KEY or GOOGLE_API_KEY or ANTHROPIC_API_KEY"
-    echo "     - OR set LLM=ollama:<model> (optional: OLLAMA_BASE_URL, OLLAMA_API_KEY)"
-    echo ""
-    exit 1
+if [ -f ".env" ]; then
+  export $(grep -v '^#' .env | xargs)
 fi
 
 # Check if required API keys are set
