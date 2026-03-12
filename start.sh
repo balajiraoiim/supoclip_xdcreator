@@ -1,110 +1,51 @@
 #!/bin/bash
 
-# SupoClip - Quick Start Script
-# This script helps you start SupoClip with a single command
+# SupoClip - Start Script (Railway compatible)
 
-set -e  # Exit on error
+set -e
 
-# Colors for output
+# Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
 echo "============================================"
 echo "  SupoClip - AI Video Clipping Tool"
 echo "============================================"
 echo ""
 
-# Load .env locally if it exists (Railway uses env variables instead)
+# Load local .env if it exists (Railway provides env vars automatically)
 if [ -f ".env" ]; then
   export $(grep -v '^#' .env | xargs)
 fi
 
-if [ -f ".env" ]; then
-  source .env
-fi
-
+# Check required API keys
 if [ -z "$ASSEMBLY_AI_API_KEY" ]; then
-    echo -e "${YELLOW}Warning: ASSEMBLY_AI_API_KEY is not set in .env${NC}"
-    echo "Video transcription will not work without this key."
-    echo ""
+  echo -e "${YELLOW}Warning: ASSEMBLY_AI_API_KEY is not set.${NC}"
+  echo "Video transcription will not work without it."
+  echo ""
 fi
 
 if [ -z "$OPENAI_API_KEY" ] && [ -z "$GOOGLE_API_KEY" ] && [ -z "$ANTHROPIC_API_KEY" ]; then
-    if [[ "${LLM:-}" == ollama:* ]]; then
-        :
-    else
-    echo -e "${YELLOW}Warning: No AI provider API key is set in .env${NC}"
-    echo "You need at least one of: OPENAI_API_KEY, GOOGLE_API_KEY, ANTHROPIC_API_KEY, or LLM=ollama:<model>"
+  if [[ "${LLM:-}" == ollama:* ]]; then
+    :
+  else
+    echo -e "${YELLOW}Warning: No AI provider API key configured.${NC}"
+    echo "Set one of: OPENAI_API_KEY, GOOGLE_API_KEY, ANTHROPIC_API_KEY, or LLM=ollama:<model>"
     echo ""
-    fi
+  fi
 fi
 
-# Check if Docker is running
-if ! docker info > /dev/null 2>&1; then
-    echo -e "${RED}Error: Docker is not running!${NC}"
-    echo "Please start Docker Desktop and try again."
-    echo ""
-    exit 1
-fi
-
-# Check if docker-compose is available
-if ! command -v docker-compose &> /dev/null && ! docker compose version &> /dev/null; then
-    echo -e "${RED}Error: docker-compose is not installed!${NC}"
-    echo "Please install Docker Compose and try again."
-    echo ""
-    exit 1
-fi
-
-# Determine which docker compose command to use
-if docker compose version &> /dev/null; then
-    DOCKER_COMPOSE="docker compose"
-else
-    DOCKER_COMPOSE="docker-compose"
-fi
-
-echo -e "${GREEN}Starting SupoClip...${NC}"
+echo -e "${GREEN}Starting SupoClip server...${NC}"
 echo ""
 
-# Build and start containers
-echo "Building and starting Docker containers..."
-echo "(This may take a few minutes on the first run)"
-echo ""
+# Use Railway's provided port or fallback to 8080
+PORT=${PORT:-8080}
 
-$DOCKER_COMPOSE up -d --build
-
-echo ""
-echo -e "${GREEN}SupoClip is starting up!${NC}"
-echo ""
-echo "Services will be available at:"
-echo "  - Frontend:  http://localhost:3000"
-echo "  - Backend:   http://localhost:8000"
-echo "  - API Docs:  http://localhost:8000/docs"
-echo ""
-echo "To view logs, run:"
-echo "  $DOCKER_COMPOSE logs -f"
-echo ""
-echo "To stop all services, run:"
-echo "  $DOCKER_COMPOSE down"
-echo ""
-echo "Waiting for services to be healthy..."
-
-# Wait for services to be healthy
-sleep 5
-
-# Check if services are running
-if $DOCKER_COMPOSE ps | grep -q "Up"; then
-    echo -e "${GREEN}Services are starting successfully!${NC}"
-    echo ""
-    echo "You can now:"
-    echo "  1. Open http://localhost:3000 in your browser"
-    echo "  2. View logs: $DOCKER_COMPOSE logs -f"
-    echo "  3. Stop services: $DOCKER_COMPOSE down"
-else
-    echo -e "${YELLOW}Services are starting... Check logs if you encounter issues:${NC}"
-    echo "  $DOCKER_COMPOSE logs -f"
-fi
+# Start backend
+# Change "main:app" if your FastAPI/ASGI entrypoint is different
+uvicorn main:app --host 0.0.0.0 --port $PORT
 
 echo ""
 echo "============================================"
