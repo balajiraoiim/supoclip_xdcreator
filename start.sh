@@ -16,7 +16,7 @@ echo "  SupoClip - AI Video Clipping Tool"
 echo "============================================"
 echo ""
 
-# Check if .env file exists
+# Load .env locally if it exists (Railway uses env variables instead)
 if [ -f ".env" ]; then
   export $(grep -v '^#' .env | xargs)
 fi
