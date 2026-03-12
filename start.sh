@@ -21,8 +21,9 @@ if [ -f ".env" ]; then
   export $(grep -v '^#' .env | xargs)
 fi
 
-# Check if required API keys are set
-source .env
+if [ -f ".env" ]; then
+  source .env
+fi
 
 if [ -z "$ASSEMBLY_AI_API_KEY" ]; then
     echo -e "${YELLOW}Warning: ASSEMBLY_AI_API_KEY is not set in .env${NC}"
