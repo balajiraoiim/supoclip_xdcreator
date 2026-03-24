@@ -1188,7 +1188,6 @@ def create_optimized_clip(
             )
             target_width, target_height = round_to_even(new_width), round_to_even(new_height)
             processed_clip = cropped_clip
->>>>>>> 70946ce (Subtitle speed up)
 
         # Add AssemblyAI subtitles with template support
         final_clips = [processed_clip]
